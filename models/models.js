@@ -28,4 +28,4 @@ const schema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("mern-database", schema);
+module.exports = mongoose.model("mern-databases", schema);

@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const models = require("./models/models");
 const fs = require("fs");
@@ -8,13 +8,16 @@ const path = require("path");
 const cors = require("cors");
 const route = require("./routes/routes");
 const app = express();
+const env = require("dotenv")
+
 
 app.use(express.json());
+env.config()
 app.use(cors());
 app.use("/api", route);
 
 mongoose
-  .connect("mongodb://localhost:27017/mern")
+  .connect(process.env.URL)
   .then(() => {
     console.log("Mongoose connected");
   })
@@ -56,6 +59,6 @@ app.post("/crud", upload.single("file"), async (req, res) => {
 });
 
 // Start server
-app.listen(9000, () => {
+app.listen(process.env.PORT, () => {
   console.log("Server connected on port 9000");
 });
