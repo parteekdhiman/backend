@@ -3,19 +3,27 @@ const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const models = require("./models/models");
-const fs = require("fs");
-const path = require("path");
 const cors = require("cors");
 const route = require("./routes/routes");
 const app = express();
-const env = require("dotenv")
+const env = require("dotenv");
 
+// Load environment variables
+env.config();
 
 app.use(express.json());
-env.config()
-app.use(cors());
-app.use("/api", route);
 
+// CORS Configuration (allow localhost:5173 or any other frontend)
+const corsOptions = {
+  origin: 'https://legendary-unicorn-13589b.netlify.app/', // Allow only this origin to access
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+  allowedHeaders: ['Content-Type'],
+};
+app.use(cors(corsOptions));
+
+app.use("/api", route); // Mount routes
+
+// Database connection
 mongoose
   .connect(process.env.URL)
   .then(() => {
@@ -25,6 +33,7 @@ mongoose
     console.log(error);
   });
 
+// Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -36,15 +45,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// POST route to handle creating data
 app.post("/crud", upload.single("file"), async (req, res) => {
   try {
     const bodyitems = req.body;
 
+    // Hash password if provided
     if (bodyitems.password) {
       const hashedPassword = await bcrypt.hash(bodyitems.password, 10);
       bodyitems.password = hashedPassword;
     }
 
+    // Save file path if file exists
     if (req.file) {
       bodyitems.filePath = req.file.path;
     }
