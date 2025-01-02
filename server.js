@@ -7,19 +7,17 @@ const cors = require("cors");
 const route = require("./routes/routes");
 const app = express();
 const env = require("dotenv");
-
-// Load environment variables
+const port = process.env.PORT || 9000
 env.config();
-
+// Add headers before the routes are defined
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://legendary-unicorn-13589b.netlify.app/');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
+});
 app.use(express.json());
-
-// CORS Configuration (allow localhost:5173 or any other frontend)
-const corsOptions = {
-  origin: 'https://legendary-unicorn-13589b.netlify.app/', // Allow only this origin to access
-  methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
-  allowedHeaders: ['Content-Type'],
-};
-app.use(cors(corsOptions));
 
 app.use("/api", route); // Mount routes
 
@@ -70,7 +68,6 @@ app.post("/crud", upload.single("file"), async (req, res) => {
   }
 });
 
-// Start server
-app.listen(process.env.PORT, () => {
+app.listen(port, () => {
   console.log("Server connected on port 9000");
 });
